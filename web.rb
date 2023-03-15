@@ -1,12 +1,13 @@
 require 'sinatra'
 #require 'pry'
 require './lib/Auth.rb'
-require './lib/Listwork.rb'
+require './lib/AppUsers.rb'
 require 'sequel'
-require 'pry'
 
 enable :sessions
 DB = Sequel.sqlite("datatodo.sqlite")
+
+# LOGIN
 
 get '/' do
   erb :web  
@@ -21,84 +22,81 @@ post '/' do
 
   if @auth[:status] == 'success'
     session[:username] = @username
-    @work = Auth2.listwork(@username)
-  
+    @work = AppList.listwork(@username)
     erb :listwork
   else
-    erb :loginnotok
+    erb :login_failed
   end
 end
+
+# APP 
 
 get '/list' do
     erb :listwork
 end
 
 post '/list' do
-
     session[:username] = @username
-    @work = Auth2.listwork(@username)
-    @userid = Auth2.userid(@username)
+    @work = AppList.listwork(@username)
+    @userid = AppUsers.userid(@username)
     @newwork = params["new_work"] 
-    DB[:lists].insert(work: @newwork, user_id: @userid)
-
+    AppList.add_listwork(@newwork, @userid)
     erb :listwork
 end
  
 get '/delete_list/:listid' do
     puts "#{params.inspect}"
     session[:username] = @username
-    @work = Auth2.listwork(@username)
-    DB[:todo].where(list_id: params[:listid]).delete
-    DB[:lists].where(id: params[:listid]).delete 
+    @work = AppList.listwork(@username)
+    AppList.delete_listwork(params[:listid])
     erb :listwork
 end
 
 get '/list/:listid' do
     puts "#{params.inspect}"
     session[:work] = @work
-    @todo = Auth3.listtodo(@work, params[:listid])
-    @listid = Auth3.listid(@work)
-    @thework = DB[:lists].where(id: params[:listid]).first[:work]
+    @todo = AppTodo.listtodo(@work, params[:listid])
+    @listid = AppList.listid(@work)
+    @thework = AppList.thework(params[:listid])
     erb :todo
 end
 
 post '/list/:listid' do
-  # them todo trong database voi so list_id
     session[:work] = @work
-    @todo = Auth3.listtodo(@work, params[:listid])
+    @todo = AppTodo.listtodo(@work, params[:listid])
     @newtodo = params["new_todo"] 
-    @thework = DB[:lists].where(id: params[:listid]).first[:work]
-    DB[:todo].insert(todo: @newtodo, list_id: params[:listid], abc: '0')
+    @thework = AppList.thework(params[:listid])
+    AppTodo.add_todo(@newtodo, params[:listid]) 
     erb :todo
 end
 
 get '/delete_todo/:todoid' do
     puts "#{params.inspect}"
     session[:work] = @work
-    @listid = DB[:todo].where(id: params[:todoid]).first[:list_id]
-    DB[:todo].where(id: params[:todoid]).delete
+    AppTodo.delete_todo(params[:todoid])
+    @listid = AppList.listid(@work)
     redirect "/list/#{@listid}"
 end
 
-get '/ok_todo/:todoid' do
+get '/did_todo/:todoid' do
     puts "#{params.inspect}"
     session[:work] = @work
-    @listid = DB[:todo].where(id: params[:todoid]).first[:list_id]
-    DB2 = DB[:todo].where(id: params[:todoid])
-    @abc = DB[:todo].where(id: params[:todoid]).first[:abc]
-    DB2.update(abc:'1')
+    @listid = AppList.listid(@work)
+    @status = AppTodo.status_todo(params[:todoid])
+    AppTodo.status_todo_1(params[:todoid])
     redirect "/list/#{@listid}"
 end
 
-get '/notok_todo/:todoid' do
+get '/didnot_todo/:todoid' do
     puts "#{params.inspect}"
     session[:work] = @work
-    @listid = DB[:todo].where(id: params[:todoid]).first[:list_id]
-    DB2 = DB[:todo].where(id: params[:todoid])
-    @abc = DB[:todo].where(id: params[:todoid]).first[:abc]
-    DB2.update(abc:'0')
+    @listid = AppList.listid(@work)
+    @status = AppTodo.status_todo(params[:todoid])
+    AppTodo.status_todo_0(params[:todoid])
     redirect "/list/#{@listid}"
 end
+
+# CHANGE PASSWORD
 
 get '/changepw' do
   erb :changepw
@@ -115,13 +113,14 @@ post '/changepw' do
     @auth = Auth.changepw(@username, @password, @newpw)
 
     if @auth[:status] == 'success'
-      erb :changepwok
+      erb :changepw_success
     end
   else
-    erb :changepwnotok
+    erb :changepw_failed
   end
 end
 
+# SIGNUP
 
 get '/signup' do
   erb :signup
@@ -133,12 +132,10 @@ post '/signup' do
   @password = params["pw"]
   @auth = Auth.signup(@username, @password)
 
-  #puts "#{@auth}"
-
   if @auth[:status] == 'success'
-    erb :signupok
+    erb :signup_success
   else
-    erb :signupnotok
+    erb :signup_failed
   end
 end
 

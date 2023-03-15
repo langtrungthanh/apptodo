@@ -18,13 +18,12 @@
      <table>    
      <thead>
         <% @todo.each do |i| %>  
-        
         <tr>
             <th><%= i[:todo] %></th>
-            <th><%= i[:abc] %></th>
+            <th><%= i[:status] %></th>
             <th> <a href='/delete_todo/<%= i[:id] %>'>Delete</a> </th>     
-            <th> <a href='/ok_todo/<%= i[:id] %>'>Did</a> </th>   
-            <th> <a href='/notok_todo/<%= i[:id] %>'>Didnt</a> </th>   
+            <th> <a href='/did_todo/<%= i[:id] %>'>Did</a> </th>   
+            <th> <a href='/didnot_todo/<%= i[:id] %>'>Didnt</a> </th>   
         </tr>
         
         <% end %>  
@@ -35,6 +34,8 @@
     New list:<input type="text" name="new_todo"/><br/>
            <input type="submit" name="btn_login" value="Add">
     </form>  
+
+    <p><a href='/list'>Return</a></p> 
 
   </div>
   </body>
