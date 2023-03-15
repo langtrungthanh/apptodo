@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='UTF-8' />
+    <title>Login</title>
+    <style> html {
+ 
+</style>
+   
+  </head>
+  </head>
+  <body>
+  
+  <div class="login-box">
+     <h1> <%= @thework %> </h1>
+     <h1> <%= params[:listid] %> </h1>
+     <table>    
+     <thead>
+        <% @todo.each do |i| %>  
+        
+        <tr>
+            <th><%= i[:todo] %></th>
+            <th><%= i[:abc] %></th>
+            <th> <a href='/delete_todo/<%= i[:id] %>'>Delete</a> </th>     
+            <th> <a href='/ok_todo/<%= i[:id] %>'>Did</a> </th>   
+            <th> <a href='/notok_todo/<%= i[:id] %>'>Didnt</a> </th>   
+        </tr>
+        
+        <% end %>  
+      </thead>   
+    </table> 
+
+   <form action="/list/<%= params[:listid] %>" method="post">
+    New list:<input type="text" name="new_todo"/><br/>
+           <input type="submit" name="btn_login" value="Add">
+    </form>  
+
+  </div>
+  </body>
+</html>
+

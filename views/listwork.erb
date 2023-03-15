@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='UTF-8' />
+    <title>Login</title>
+    <style> html {
+ 
+</style>
+   
+  </head>
+  </head>
+  <body>
+   <div class="login-box">
+     <h2>Login success</h2>
+     <p> Wellcome <%=  @username %> </p>
+     <p><a href='/changepw'>Change password</a></p> 
+     <p><a href='/'>Logout</a></p> 
+     </div> 
+  
+  <div class="login-box">
+     
+     <table>
+     <thead>
+        <% @work.each do |x| %>  
+       
+        <tr>
+            <th><%= x[:work] %></th>
+            <th><%= x[:id] %> </th>
+            <th> <a href='/list/<%= x[:id] %>'>Detail</a> </th>
+            <th> <a href="/delete_list/<%= x[:id] %>">Delete</a> </th>     
+        </tr>
+        <% end %>  
+      </thead>
+     
+    </table> 
+
+   <form action="/list" method="post">
+    New list:<input type="text" name="new_work"/><br/>
+           <input type="submit" name="btn_login" value="Add">
+    </form>  
+
+  </div>
+  </body>
+</html>
+
